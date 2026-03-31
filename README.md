@@ -2,6 +2,8 @@
 
 基于 **React + TypeScript + Vite + CloudBase** 构建的现代化个人博客网站。
 
+访问地址：https://christcb.top/chris-know/
+
 ## 🎨 设计风格
 
 - **简约极简风格**（类似 Medium）
