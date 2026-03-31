@@ -36,6 +36,7 @@ export interface Comment {
   _id: string;
   postId: string;
   nickname: string;
+  avatar?: string;
   content: string;
   parentId: string;
   createdAt: string;
@@ -116,4 +117,24 @@ export interface SiteStatsDetail {
   categoryDistribution: CategoryDistribution[];
   topPosts: TopPost[];
   tagStats: TagStat[];
+}
+
+// 认证用户（来自 CloudBase Auth）
+export interface AuthUser {
+  uid: string;
+  phone: string;
+  name: string;
+  picture: string;
+  email?: string;
+}
+
+// 博客用户扩展信息（存储在 blog_users 集合）
+export interface BlogUser {
+  _id: string;
+  phone: string;
+  nickname: string;
+  avatar: string;
+  bio: string;
+  createdAt: string;
+  updatedAt: string;
 }

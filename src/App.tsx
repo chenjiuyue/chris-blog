@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { Layout } from './components/layout/Layout';
 import { HomePage } from './pages/HomePage';
 import { PostDetailPage } from './pages/PostDetailPage';
@@ -12,18 +13,17 @@ import { ArchivePage } from './pages/ArchivePage';
 import { FavoritesPage } from './pages/FavoritesPage';
 import { GuestbookPage } from './pages/GuestbookPage';
 import { StatsPage } from './pages/StatsPage';
-import { initAuth } from './config/cloudbase';
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 
 export default function App() {
-  useEffect(() => {
-    // 初始化 CloudBase 认证
-    initAuth();
-  }, []);
-
   return (
     <HelmetProvider>
       <ThemeProvider>
         <HashRouter>
+        <AuthProvider>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#D4A574] border-t-transparent rounded-full animate-spin" /></div>}>
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
@@ -35,8 +35,12 @@ export default function App() {
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/guestbook" element={<GuestbookPage />} />
             <Route path="/stats" element={<StatsPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
+        </Suspense>
+        </AuthProvider>
         </HashRouter>
       </ThemeProvider>
     </HelmetProvider>

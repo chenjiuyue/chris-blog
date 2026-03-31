@@ -1,5 +1,50 @@
 # 更新日志
 
+## [v2.2.0] - 2026-03-31
+
+### 🐛 Bug 修复
+
+- **收藏功能重构** - 修复收藏与取消收藏交互异常
+  - 修复 `blog_favorites` 集合未创建导致收藏功能完全失效的问题
+  - 修复安全规则 `auth.uid == doc.userId` 导致客户端 `where` 查询和 `remove` 操作被拒绝的问题
+  - 安全规则改为 `auth != null`，数据隔离由代码 `where({ userId: uid })` 保证
+  - 将 `toggleFavorite` 拆分为独立的 `addFavorite` 和 `removeFavorite`，操作成功才更新 UI 状态
+  - 新增收藏状态事件系统 `onFavoriteChange`，收藏页取消收藏后文章详情页按钮状态自动同步
+
+- **收藏功能去除本地缓存** - 收藏仅关联登录用户
+  - 移除所有 `localStorage` 降级方案
+  - 未登录点击收藏弹出提示气泡，引导用户登录
+  - 收藏页未登录时展示登录引导，不再显示本地缓存数据
+
+- **留言板集合缺失** - 修复 `blog_guestbook` 集合未创建的问题
+
+### ✨ 新增功能
+
+- **留言墙免审核自动展示** - 去掉审核机制
+  - 留言提交后直接展示，无需等待审核
+  - 新增前端敏感词过滤，匹配到的敏感词自动替换为 `**`
+  - 提交和展示双重过滤保护
+
+- **留言板用户头像实时更新**
+  - 留言提交时保存 `userId` 和 `avatar` 字段
+  - 展示留言时通过 `getBlogUser` 获取用户最新头像和昵称
+  - 支持真实头像图片显示，无头像时显示首字母
+
+### 🔧 优化改进
+
+- GitHub 地址更新为 `https://github.com/chenjiuyue/`（Footer、关于页、个人卡片三处）
+- `blog_guestbook` 安全规则设置为 `read: true, write: true, create: auth != null`
+- `blog_favorites` 安全规则优化为 `read/write/create: auth != null`
+- 收藏操作错误处理增强，所有函数均有详细的错误日志和返回值
+
+### 📦 数据库变更
+
+- 创建 `blog_favorites` 集合
+- 创建 `blog_guestbook` 集合
+- `blog_guestbook` 文档新增 `userId`、`avatar` 字段，移除 `status` 字段
+
+---
+
 ## [v2.1.0] - 2026-03-26
 
 ### ✨ 新增功能
@@ -126,6 +171,18 @@
 - **修订号（Patch）**: Bug 修复和小改进
 
 ## 升级指南
+
+### 从 v2.1.0 升级到 v2.2.0
+
+1. 拉取最新代码
+2. 构建项目：`npm run build`
+3. 部署到云端
+
+#### 数据库更新
+
+需要创建以下新集合（如尚未创建）：
+- `blog_favorites` - 用户收藏（安全规则：`auth != null`）
+- `blog_guestbook` - 留言板（安全规则：`read: true, write: true, create: auth != null`）
 
 ### 从 v2.0.0 升级到 v2.1.0
 

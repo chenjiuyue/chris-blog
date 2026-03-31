@@ -18,7 +18,7 @@ export async function getCommentsByPostId(postId: string): Promise<Comment[]> {
   return result.data as Comment[];
 }
 
-export async function createComment(postId: string, nickname: string, content: string, parentId = ''): Promise<Comment | null> {
+export async function createComment(postId: string, nickname: string, content: string, parentId = '', avatar = ''): Promise<Comment | null> {
   await ensureAuth();
   const auth = getAuth();
   const loginState = await auth.getLoginState();
@@ -34,6 +34,7 @@ export async function createComment(postId: string, nickname: string, content: s
     nickname,
     content,
     parentId,
+    avatar,
     createdAt: now,
   });
 
@@ -46,6 +47,7 @@ export async function createComment(postId: string, nickname: string, content: s
     _id: result.id,
     postId,
     nickname,
+    avatar,
     content,
     parentId,
     createdAt: now,

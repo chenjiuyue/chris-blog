@@ -19,7 +19,7 @@ export function Footer() {
               链接
             </h4>
             <div className="space-y-2">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/chenjiuyue/" target="_blank" rel="noopener noreferrer"
                 className="block text-sm text-text-secondary dark:text-text-muted hover:text-accent transition-colors">
                 GitHub
               </a>

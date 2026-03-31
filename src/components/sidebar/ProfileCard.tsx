@@ -24,7 +24,7 @@ export function ProfileCard() {
       {/* Social Links */}
       <div className="flex justify-center gap-1 text-xs text-[var(--color-text-secondary)]">
         <a
-          href="https://github.com"
+          href="https://github.com/chenjiuyue/"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-accent transition-colors"

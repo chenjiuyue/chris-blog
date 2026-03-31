@@ -11,7 +11,7 @@ const skills = [
 ];
 
 const socialLinks = [
-  { name: 'GitHub', href: 'https://github.com', icon: GitBranch },
+  { name: 'GitHub', href: 'https://github.com/chenjiuyue/', icon: GitBranch },
   { name: 'Blog', href: '/', icon: Globe },
   { name: 'Email', href: 'mailto:hello@chrisknow.dev', icon: Mail },
 ];

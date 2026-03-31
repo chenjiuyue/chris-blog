@@ -14,6 +14,7 @@ import { CommentList } from '../components/comment/CommentList';
 import { Loading } from '../components/common/Loading';
 import { getPostById, getRelatedPosts } from '../services/postService';
 import { getCommentsByPostId } from '../services/commentService';
+import { getCloudBaseApp, ensureAuth } from '../config/cloudbase';
 import type { Post, Comment } from '../types';
 
 function formatDate(dateStr: string): string {
@@ -33,6 +34,33 @@ export function PostDetailPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // 记录访问日志 + 更新文章浏览量
+  const recordVisit = async (postId: string) => {
+    try {
+      await ensureAuth();
+      const app = getCloudBaseApp();
+      // 并行调用两个云函数
+      await Promise.allSettled([
+        app.callFunction({
+          name: 'blog-recordVisit',
+          data: {
+            postId,
+            page: `/post/${postId}`,
+            referrer: document.referrer || '',
+            userAgent: navigator.userAgent || '',
+          },
+        }),
+        app.callFunction({
+          name: 'blog-updatePostViews',
+          data: { postId },
+        }),
+      ]);
+    } catch (e) {
+      // 访问记录失败不影响页面展示
+      console.warn('记录访问失败:', e);
+    }
+  };
+
   useEffect(() => {
     if (!id) return;
     setLoading(true);
@@ -42,6 +70,8 @@ export function PostDetailPage() {
       setLoading(false);
       if (p) {
         getRelatedPosts(p._id, p.category, p.tags).then(setRelatedPosts);
+        // 记录访问 + 更新浏览量
+        recordVisit(id);
       }
     });
 

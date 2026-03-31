@@ -42,27 +42,21 @@ exports.main = async (event, context) => {
 
       // 减少文章点赞数
       await db.collection('blog_posts').doc(postId).update({
-        data: {
-          likeCount: _.inc(-1),
-        },
+        likeCount: _.inc(-1),
       });
 
       liked = false;
     } else {
       // 未点赞 -> 添加点赞
       await db.collection('blog_likes').add({
-        data: {
-          postId,
-          userId,
-          createdAt: new Date().toISOString(),
-        },
+        postId,
+        userId,
+        createdAt: new Date().toISOString(),
       });
 
       // 增加文章点赞数
       await db.collection('blog_posts').doc(postId).update({
-        data: {
-          likeCount: _.inc(1),
-        },
+        likeCount: _.inc(1),
       });
 
       liked = true;

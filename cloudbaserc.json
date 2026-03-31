@@ -8,5 +8,12 @@
       "runtime": "Nodejs16.13",
       "handler": "index.main"
     }
-  ]
+  ],
+  "app": {
+    "serviceName": "cli-test",
+    "framework": "vite",
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDir": "dist"
+  }
 }

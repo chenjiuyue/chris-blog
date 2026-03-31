@@ -13,6 +13,7 @@ import { getPublishedPosts, searchPosts } from '../services/postService';
 import { getAllCategories } from '../services/categoryService';
 import { getAllTags } from '../services/tagService';
 import { getBlogStatistics } from '../services/statisticsService';
+import { getCloudBaseApp, ensureAuth } from '../config/cloudbase';
 import type { Post, Category, Tag, BlogStatistics } from '../types';
 
 export function HomePage() {
@@ -36,6 +37,14 @@ export function HomePage() {
     getAllCategories().then(setCategories);
     getAllTags().then(setTags);
     getBlogStatistics().then(setStats);
+    // 记录首页访问
+    ensureAuth().then(() => {
+      const app = getCloudBaseApp();
+      app.callFunction({
+        name: 'blog-recordVisit',
+        data: { page: '/', referrer: document.referrer || '', userAgent: navigator.userAgent || '' },
+      }).catch(() => {});
+    });
   }, [fetchPosts]);
 
   useEffect(() => {

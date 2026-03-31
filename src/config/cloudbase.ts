@@ -18,19 +18,23 @@ export async function initAuth() {
   const app = getCloudBaseApp();
   const auth = app.auth();
   
-  try {
-    // 检查是否已登录
-    const loginState = await auth.getLoginState();
-    if (!loginState) {
-      // 使用匿名登录
-      await auth.anonymousAuthProvider().signIn();
-      console.log('CloudBase 匿名登录成功');
-    }
+  // 检查是否已有登录状态
+  const loginState = await auth.getLoginState();
+  if (loginState) {
+    // 已有登录态（可能是用户登录或匿名），复用
     isLoginInitialized = true;
-  } catch (error) {
-    console.error('CloudBase 登录失败:', error);
-    throw error;
+    return;
   }
+
+  // 没有任何登录态，使用匿名登录兜底
+  await auth.anonymousAuthProvider().signIn();
+  console.log('CloudBase 匿名登录成功');
+  isLoginInitialized = true;
+}
+
+/** 重置登录状态标记（用于退出登录后重新初始化） */
+export function resetLoginState() {
+  isLoginInitialized = false;
 }
 
 // 确保认证已完成

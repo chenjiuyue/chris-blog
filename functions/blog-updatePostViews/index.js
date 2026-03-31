@@ -3,6 +3,15 @@
  * 避免并发问题，使用原子操作
  */
 
+const cloudbase = require('@cloudbase/node-sdk');
+
+const app = cloudbase.init({
+  env: cloudbase.SYMBOL_CURRENT_ENV
+});
+
+const db = app.database();
+const _ = db.command;
+
 exports.main = async (event, context) => {
   const { postId } = event;
   
@@ -14,27 +23,26 @@ exports.main = async (event, context) => {
   }
 
   try {
-    const { database } = require('cloudbase');
-    const db = database();
-    
     // 使用原子操作递增浏览量
     await db
       .collection('blog_posts')
       .doc(postId)
       .update({
-        viewCount: db.command.inc(1)
+        viewCount: _.inc(1)
       });
 
     // 更新全站统计
-    await db
-      .collection('blog_statistics')
-      .where({
-        _id: 'global'
-      })
-      .update({
-        totalViews: db.command.inc(1),
-        updatedAt: new Date().toISOString()
-      });
+    try {
+      const existing = await db.collection('blog_statistics').doc('site_stats').get();
+      if (existing.data && existing.data.length > 0) {
+        await db.collection('blog_statistics').doc('site_stats').update({
+          totalViews: _.inc(1),
+          updatedAt: new Date().toISOString()
+        });
+      }
+    } catch (e) {
+      // site_stats 不存在时忽略
+    }
 
     return {
       success: true,

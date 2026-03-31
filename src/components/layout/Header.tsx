@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Menu, X } from 'lucide-react';
 import { ThemeToggle } from '../common/ThemeToggle';
+import { UserMenu } from '../auth/UserMenu';
 import { useState, useEffect } from 'react';
 
 export function Header() {
@@ -66,6 +67,7 @@ export function Header() {
             <Search size={18} />
           </Link>
           <ThemeToggle />
+          <UserMenu />
         </div>
 
         <button
@@ -97,6 +99,7 @@ export function Header() {
                 <Search size={18} />
               </Link>
               <ThemeToggle />
+              <UserMenu />
             </div>
           </div>
         </div>

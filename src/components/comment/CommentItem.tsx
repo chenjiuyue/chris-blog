@@ -74,11 +74,15 @@ export function CommentItem({ comment, replies, postId, onSubmit }: Props) {
   return (
     <div className="py-4 hover:bg-accent/5 rounded-lg px-3 -mx-3 transition-colors">
       <div className="flex gap-3">
-        <div className={`w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm`}>
-          <span className="text-sm font-semibold text-white">
-            {comment.nickname.charAt(0).toUpperCase()}
-          </span>
-        </div>
+        {comment.avatar ? (
+          <img src={comment.avatar} alt={comment.nickname} className="w-10 h-10 rounded-full object-cover flex-shrink-0 mt-0.5 shadow-sm" />
+        ) : (
+          <div className={`w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm`}>
+            <span className="text-sm font-semibold text-white">
+              {comment.nickname.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-sm font-semibold text-primary dark:text-text-light">
