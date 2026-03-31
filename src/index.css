@@ -1,0 +1,233 @@
+@import 'highlight.js/styles/github-dark.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #1A1A2E;
+  --color-accent: #D4A574;
+  --color-surface: #FAFAF8;
+  --color-text: #1A1A2E;
+  --color-text-secondary: #4A4A5A;
+  --color-border: #E8E6E3;
+}
+
+.dark {
+  --color-primary: #E8E6E3;
+  --color-accent: #D4A574;
+  --color-surface: #1A1A1E;
+  --color-text: #E8E6E3;
+  --color-text-secondary: #B8B6B3;
+  --color-border: #2D2D3A;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  line-height: 1.8;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  background-color: #D4A574;
+  color: #1A1A2E;
+}
+
+/* Markdown Content Styles */
+.prose {
+  max-width: 100%;
+  line-height: 1.85;
+  font-size: 1.0625rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-family: 'DM Serif Display', serif;
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  color: var(--color-text);
+}
+
+.prose h1 { font-size: 2rem; line-height: 1.3; }
+.prose h2 { font-size: 1.625rem; line-height: 1.35; }
+.prose h3 { font-size: 1.375rem; line-height: 1.4; }
+.prose h4 { font-size: 1.125rem; line-height: 1.5; }
+
+.prose p {
+  margin-bottom: 1.5em;
+  color: var(--color-text-secondary);
+}
+
+.prose a {
+  color: #D4A574;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+
+.prose a:hover {
+  color: #B8864A;
+}
+
+.prose blockquote {
+  border-left: 3px solid #D4A574;
+  padding-left: 1.25em;
+  margin: 1.5em 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  background-color: rgba(212, 165, 116, 0.05);
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  padding-right: 1em;
+  border-radius: 0 4px 4px 0;
+}
+
+.prose code {
+  background-color: rgba(212, 165, 116, 0.1);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: #D4A574;
+}
+
+.prose pre {
+  background-color: #1A1A2E !important;
+  border-radius: 8px;
+  padding: 1.25em;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.dark .prose pre {
+  background-color: #111114 !important;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  color: #E8E6E3;
+  font-size: 0.875em;
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 1.5em 0;
+}
+
+.prose ul, .prose ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.5em;
+  color: var(--color-text-secondary);
+}
+
+.prose li {
+  margin-bottom: 0.4em;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2em 0;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+}
+
+.prose th, .prose td {
+  border: 1px solid var(--color-border);
+  padding: 0.625em 1em;
+  text-align: left;
+}
+
+.prose th {
+  background-color: rgba(212, 165, 116, 0.1);
+  font-weight: 600;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #D4A574;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #B8864A;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D4A574 transparent;
+}
+
+/* Glassmorphism utility */
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Reading Settings Variables */
+:root {
+  --reading-font-size: 1.0625rem;
+  --reading-line-height: 1.85;
+}
+
+.prose {
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+}
+
+/* Focus Mode - 专注模式 */
+body.focus-mode header,
+body.focus-mode footer,
+body.focus-mode aside,
+body.focus-mode .sidebar {
+  display: none !important;
+}
+
+body.focus-mode main {
+  max-width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+body.focus-mode article {
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+/* Reading Settings Variables */
+:root {
+  --reading-font-size: 16px;
+  --reading-line-height: 1.8;
+}
+
+.prose {
+  font-size: var(--reading-font-size);
+  line-height: var(--reading-line-height);
+}

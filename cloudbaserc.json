@@ -1,0 +1,12 @@
+{
+  "envId": "lowcode-0gwpl9v4125156ef",
+  "functionRoot": "./functions",
+  "functions": [
+    {
+      "name": "blog-toggleLike",
+      "timeout": 5,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main"
+    }
+  ]
+}

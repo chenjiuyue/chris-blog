@@ -1,0 +1,9 @@
+{
+  "name": "blog-updatePostViews",
+  "version": "1.0.0",
+  "description": "递增文章浏览量云函数",
+  "main": "index.js",
+  "dependencies": {
+    "cloudbase": "^2.7.0"
+  }
+}

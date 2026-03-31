@@ -1,0 +1,9 @@
+{
+  "name": "blog-toggleLike",
+  "version": "1.0.0",
+  "description": "文章点赞/取消点赞云函数",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^2.5.0"
+  }
+}

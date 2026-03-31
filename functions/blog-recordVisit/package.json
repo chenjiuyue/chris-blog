@@ -1,0 +1,9 @@
+{
+  "name": "blog-recordVisit",
+  "version": "1.0.0",
+  "description": "记录访问日志云函数",
+  "main": "index.js",
+  "dependencies": {
+    "cloudbase": "^2.7.0"
+  }
+}
