@@ -24,7 +24,7 @@ export function CategoryNav({ categories }: Props) {
         >
           <span>全部文章</span>
         </Link>
-        {categories.map(cat => (
+        {categories.filter(cat => cat.name && cat.slug).map(cat => (
           <Link
             key={cat._id}
             to={`/category/${cat.slug}`}

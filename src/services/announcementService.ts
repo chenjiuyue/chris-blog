@@ -36,7 +36,7 @@ export async function getActiveAnnouncement(): Promise<Announcement | null> {
       .get();
 
     // 在前端过滤时间范围
-    const active = result.data.find((item: any) => {
+    const active = (result.data || []).find((item: any) => {
       const startTime = new Date(item.startTime);
       const endTime = new Date(item.endTime);
       return now >= startTime && now <= endTime;

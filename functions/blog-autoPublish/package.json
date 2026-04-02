@@ -1,0 +1,9 @@
+{
+  "name": "blog-autoPublish",
+  "version": "1.0.0",
+  "description": "每天自动发布 AI/互联网技术文章",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest"
+  }
+}

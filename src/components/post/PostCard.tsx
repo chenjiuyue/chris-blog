@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Eye, MessageCircle, Calendar, Clock } from 'lucide-react';
 import type { Post } from '../../types';
 
@@ -18,9 +18,18 @@ function formatDate(dateStr: string): string {
 }
 
 export function PostCard({ post }: Props) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/post/${post._id}`);
+  };
+
   return (
-    <article className="group py-6 border-b border-[var(--color-border)] last:border-0 animate-slide-up">
-      <Link to={`/post/${post._id}`} className="block">
+    <article
+      className="group py-6 border-b border-[var(--color-border)] last:border-0 animate-slide-up cursor-pointer"
+      onClick={handleCardClick}
+    >
+      <div className="block">
         <div className="flex items-center gap-3 mb-2.5">
           <span className="text-xs font-medium text-accent uppercase tracking-wider">{post.category}</span>
           <span className="text-xs text-text-muted">&middot;</span>
@@ -47,7 +56,7 @@ export function PostCard({ post }: Props) {
 
         <div className="flex items-center justify-between">
           <div className="flex flex-wrap gap-1.5">
-            {post.tags.slice(0, 3).map(tag => (
+            {(post.tags || []).slice(0, 3).map(tag => (
               <Link
                 key={tag}
                 to={`/tag/${tag}`}
@@ -71,7 +80,7 @@ export function PostCard({ post }: Props) {
             </span>
           </div>
         </div>
-      </Link>
+      </div>
     </article>
   );
 }

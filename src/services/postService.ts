@@ -117,6 +117,6 @@ export async function getRelatedPosts(postId: string, category: string, tags: st
   }
   const posts = result.data as Post[];
   return posts
-    .filter(p => p.category === category || p.tags.some(t => tags.includes(t)))
+    .filter(p => p.category === category || (p.tags || []).some(t => tags.includes(t)))
     .slice(0, limit);
 }

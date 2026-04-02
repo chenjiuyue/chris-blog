@@ -43,12 +43,13 @@ exports.main = async (event, context) => {
     // PV
     const pv = dayVisits.length;
 
-    // UV（按 IP 去重）
-    const uniqueIPs = new Set();
+    // UV（优先按 visitorId 去重，回退到 IP）
+    const uniqueVisitors = new Set();
     dayVisits.forEach(v => {
-      if (v.ip) uniqueIPs.add(v.ip);
+      const vid = v.visitorId || v.ip;
+      if (vid) uniqueVisitors.add(vid);
     });
-    const uv = uniqueIPs.size;
+    const uv = uniqueVisitors.size;
 
     // 当日热门页面
     const pageMap = {};

@@ -78,12 +78,13 @@ exports.main = async (event, context) => {
         }
       });
 
-      // UV 统计（按 IP 去重）
-      const uniqueIPs = new Set();
+      // UV 统计（优先按 visitorId 去重，回退到 IP）
+      const uniqueVisitors = new Set();
       allVisits.forEach(v => {
-        if (v.ip) uniqueIPs.add(v.ip);
+        const vid = v.visitorId || v.ip;
+        if (vid) uniqueVisitors.add(vid);
       });
-      totalUV = uniqueIPs.size;
+      totalUV = uniqueVisitors.size;
     } catch (e) {
       console.log('blog_visits 集合可能不存在');
     }
@@ -96,30 +97,53 @@ exports.main = async (event, context) => {
     const today = now.toISOString().split('T')[0];
     const todayViews = visitMap[today] || 0;
 
-    // 4. 获取所有已发布文章
+    // 4. 获取所有已发布文章（分批加载，突破 200 条限制）
     let allPosts = [];
     try {
-      const postsResult = await db.collection('blog_posts')
-        .where({ status: 'published' })
-        .field({ category: true, tags: true, title: true, viewCount: true, likeCount: true, commentCount: true })
-        .limit(200)
-        .get();
-      allPosts = postsResult.data || [];
+      for (let skip = 0; skip < 2000; skip += 200) {
+        const postsResult = await db.collection('blog_posts')
+          .where({ status: 'published' })
+          .field({ category: true, tags: true, title: true, viewCount: true, likeCount: true, commentCount: true })
+          .skip(skip)
+          .limit(200)
+          .get();
+        if (!postsResult.data || postsResult.data.length === 0) break;
+        allPosts = allPosts.concat(postsResult.data);
+        if (postsResult.data.length < 200) break;
+      }
     } catch (e) {}
 
-    // 如果 blog_statistics 没有数据，从文章里汇总
-    if (!baseStats.totalPosts) {
-      baseStats.totalPosts = allPosts.length;
-      baseStats.totalViews = allPosts.reduce((sum, p) => sum + (p.viewCount || 0), 0);
-      baseStats.totalLikes = allPosts.reduce((sum, p) => sum + (p.likeCount || 0), 0);
-      baseStats.totalComments = allPosts.reduce((sum, p) => sum + (p.commentCount || 0), 0);
-    }
+    // 始终以实际文章数据为准进行汇总（blog_statistics 可能未及时更新）
+    const realTotalPosts = allPosts.length;
+    const realTotalViews = allPosts.reduce((sum, p) => sum + (p.viewCount || 0), 0);
+    const realTotalLikes = allPosts.reduce((sum, p) => sum + (p.likeCount || 0), 0);
+    const realTotalComments = allPosts.reduce((sum, p) => sum + (p.commentCount || 0), 0);
 
-    // 分类分布
+    // 取 blog_statistics 和实际数据中的较大值（避免统计倒退）
+    baseStats.totalPosts = Math.max(baseStats.totalPosts || 0, realTotalPosts);
+    baseStats.totalViews = Math.max(baseStats.totalViews || 0, realTotalViews);
+    baseStats.totalLikes = Math.max(baseStats.totalLikes || 0, realTotalLikes);
+    baseStats.totalComments = Math.max(baseStats.totalComments || 0, realTotalComments);
+
+    // 4.5 获取分类表，构建 slug → name 映射，统一分类名称
+    let categorySlugToName = {};
+    try {
+      const catListResult = await db.collection('blog_categories').limit(50).get();
+      (catListResult.data || []).forEach(cat => {
+        // slug → name 映射
+        if (cat.slug) categorySlugToName[cat.slug] = cat.name;
+        // name → name 映射（保持一致）
+        if (cat.name) categorySlugToName[cat.name] = cat.name;
+      });
+    } catch (e) {}
+
+    // 分类分布（统一使用分类中文名）
     const categoryMap = {};
     allPosts.forEach(p => {
-      const cat = p.category || '未分类';
-      categoryMap[cat] = (categoryMap[cat] || 0) + 1;
+      const rawCat = p.category || '未分类';
+      // 通过映射表将 slug 转为中文名，如 'frontend' → '前端开发'
+      const catName = categorySlugToName[rawCat] || rawCat;
+      categoryMap[catName] = (categoryMap[catName] || 0) + 1;
     });
     const categoryDistribution = Object.entries(categoryMap)
       .map(([name, count]) => ({ name, count }))

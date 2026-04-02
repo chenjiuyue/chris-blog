@@ -18,16 +18,19 @@ export async function getAllCategories(): Promise<Category[]> {
     return [];
   }
   
-  const categories = result.data as Category[];
+  const categories = (result.data as Category[])
+    // 过滤掉 name 或 slug 缺失的无效分类记录
+    .filter(cat => cat.name && cat.slug);
   
   // 实时统计每个分类的文章数量（同时匹配 name 和 slug）
   const categoriesWithCount = await Promise.all(
     categories.map(async (category) => {
       // 使用 in 操作符同时匹配 name 和 slug
+      const matchValues = [category.name, category.slug].filter(Boolean);
       const countResult = await db.collection(POSTS_COLLECTION)
         .where({
           status: 'published',
-          category: db.command.in([category.name, category.slug])
+          category: db.command.in(matchValues)
         })
         .count();
       

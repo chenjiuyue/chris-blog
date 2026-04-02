@@ -44,8 +44,8 @@ export default function StatsCharts({ stats, colors, formatNumber }: Props) {
         <h2 className="text-lg font-semibold text-primary dark:text-text-light mb-4">
           近 30 天访问趋势
         </h2>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-72" style={{ minWidth: 0, minHeight: 0 }}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <AreaChart data={trendData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <defs>
                 <linearGradient id="colorVisit" x1="0" y1="0" x2="0" y2="1">
@@ -90,8 +90,8 @@ export default function StatsCharts({ stats, colors, formatNumber }: Props) {
             热门文章 Top 10
           </h2>
           {stats.topPosts.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-72" style={{ minWidth: 0, minHeight: 0 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <BarChart
                   data={stats.topPosts.map(p => ({
                     name: p.title.length > 10 ? p.title.slice(0, 10) + '…' : p.title,
@@ -137,8 +137,8 @@ export default function StatsCharts({ stats, colors, formatNumber }: Props) {
             分类分布
           </h2>
           {stats.categoryDistribution.length > 0 ? (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-72" style={{ minWidth: 0, minHeight: 0 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie
                     data={stats.categoryDistribution}

@@ -16,12 +16,15 @@ exports.main = async (event, context) => {
     postId, 
     page, 
     referrer, 
-    userAgent, 
+    userAgent,
+    visitorId,
   } = event;
   
   try {
     // 尝试从 context 获取来源 IP
     const ip = context.sourceIp || context.ip || '';
+    // 使用前端传来的 visitorId 作为唯一访客标识（IP 可能在云函数 SDK 调用时为空）
+    const vid = visitorId || ip || '';
 
     // 记录访问日志
     await db.collection('blog_visits').add({
@@ -30,6 +33,7 @@ exports.main = async (event, context) => {
       referrer: referrer || '',
       userAgent: userAgent || '',
       ip: ip,
+      visitorId: vid,
       timestamp: new Date().toISOString(),
       date: new Date().toISOString().split('T')[0] // 用于日期分组
     });

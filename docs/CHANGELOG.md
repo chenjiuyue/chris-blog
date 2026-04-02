@@ -1,5 +1,44 @@
 # 更新日志
 
+## [v2.2.1] - 2026-04-02
+
+### 🐛 Bug 修复
+
+- **首页分类显示 `undefined`** - 修复分类导航出现 undefined 分类名的问题
+  - 根因：数据库 `blog_categories` 集合中存在 2 条无效记录（`cat-ai`、`cat-tools`），缺少 `name` 和 `slug` 字段
+  - 删除无效分类记录，补充"人工智能"和"开发工具"两个完整分类
+  - `categoryService.ts` 增加 `.filter(cat => cat.name && cat.slug)` 过滤无效记录
+  - `CategoryNav.tsx` 渲染前增加同样的防御性过滤
+
+- **独立访客（UV）始终为 0** - 修复统计面板独立访客数一直显示 0 的问题
+  - 根因：前端通过 SDK `callFunction` 调用云函数时，`context.sourceIp` 为空字符串，导致 UV 统计无法去重
+  - 新增 `visitorId` 机制：前端通过 `localStorage` 持久化随机生成的唯一访客标识
+  - `HomePage.tsx` 和 `PostDetailPage.tsx` 调用 `blog-recordVisit` 时传入 `visitorId`
+  - `blog-recordVisit` 云函数接收并存储 `visitorId`
+  - `blog-getSiteStats` 和 `blog-aggregateStats` UV 统计优先按 `visitorId` 去重，回退到 IP
+
+### 🔧 优化改进
+
+- `.gitignore` 新增 `.codebuddy` 目录忽略规则
+
+### 📦 数据库变更
+
+- 删除 `blog_categories` 集合中 2 条无效记录（`cat-ai`、`cat-tools`）
+- 新增 `blog_categories` 分类："人工智能"（slug: `ai-tech`）、"开发工具"（slug: `dev-tools`）
+- `blog_visits` 文档新增 `visitorId` 字段
+
+### 📁 新增文件
+
+- `src/utils/visitorId.ts` - 唯一访客标识生成与持久化工具
+
+### ☁️ 云函数更新
+
+- `blog-recordVisit` - 支持接收和存储 `visitorId`
+- `blog-getSiteStats` - UV 统计改用 `visitorId` 去重
+- `blog-aggregateStats` - 每日聚合 UV 统计改用 `visitorId` 去重
+
+---
+
 ## [v2.2.0] - 2026-03-31
 
 ### 🐛 Bug 修复
@@ -171,6 +210,19 @@
 - **修订号（Patch）**: Bug 修复和小改进
 
 ## 升级指南
+
+### 从 v2.2.0 升级到 v2.2.1
+
+1. 拉取最新代码
+2. 构建项目：`npm run build`
+3. 部署到云端
+
+#### 云函数部署
+
+需要重新部署以下云函数：
+- `blog-recordVisit` - 支持 visitorId
+- `blog-getSiteStats` - UV 统计逻辑更新
+- `blog-aggregateStats` - 聚合 UV 统计逻辑更新
 
 ### 从 v2.1.0 升级到 v2.2.0
 

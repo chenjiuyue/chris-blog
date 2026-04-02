@@ -70,8 +70,8 @@ export default function LoginPage() {
   }, [verificationInfo, code, phone, logging, refreshUser, navigate, from]);
 
   return (
-    <div className="min-h-screen flex bg-[#FAFAF8] dark:bg-[#1A1A2E]">
-      {/* 左侧装饰区 */}
+    <div className="min-h-[100dvh] flex flex-col lg:flex-row bg-[#FAFAF8] dark:bg-[#1A1A2E]">
+      {/* 左侧装饰区 - 桌面端显示 */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#D4A574] via-[#E8C9A8] to-[#B8864A]" />
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80')] bg-cover bg-center mix-blend-overlay opacity-30" />
@@ -100,32 +100,50 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* 右侧登录表单 */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md animate-[slideUp_0.5s_ease-out]">
-          {/* Mobile Logo */}
-          <div className="lg:hidden text-center mb-10">
-            <h2 className="text-3xl font-bold text-[#D4A574]">Chris Know</h2>
-            <p className="text-sm text-[#B8B6B3] mt-2">登录以获得完整体验</p>
+      {/* 移动端顶部装饰条 */}
+      <div className="lg:hidden relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#D4A574] via-[#E8C9A8] to-[#B8864A]" />
+        <div className="relative z-10 px-6 pt-12 pb-8 text-white text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold drop-shadow-lg">Chris Know</h1>
+          <p className="text-sm opacity-90 mt-2">登录以获得完整体验</p>
+          <div className="mt-4 flex justify-center gap-4 text-xs opacity-75">
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
+              <span>收藏文章</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
+              <span>互动评论</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
+              <span>个性化推荐</span>
+            </div>
           </div>
+        </div>
+      </div>
 
+      {/* 登录表单区 */}
+      <div className="flex-1 flex items-start lg:items-center justify-center px-4 sm:px-6 py-6 sm:py-8 lg:py-12 overflow-y-auto">
+        <div className="w-full max-w-md animate-[slideUp_0.5s_ease-out]">
           {/* 卡片 */}
-          <div className="bg-white/80 dark:bg-[#2D2D3A]/80 backdrop-blur-xl rounded-2xl shadow-xl dark:shadow-2xl p-8 border border-white/20 dark:border-white/5">
-            <h3 className="text-2xl font-semibold text-[#1A1A2E] dark:text-[#F5F5F5] mb-2">
+          <div className="bg-white/80 dark:bg-[#2D2D3A]/80 backdrop-blur-xl rounded-2xl shadow-xl dark:shadow-2xl p-5 sm:p-8 border border-white/20 dark:border-white/5">
+            <h3 className="text-xl sm:text-2xl font-semibold text-[#1A1A2E] dark:text-[#F5F5F5] mb-1 sm:mb-2">
               欢迎回来
             </h3>
-            <p className="text-sm text-[#B8B6B3] mb-8">
+            <p className="text-sm text-[#B8B6B3] mb-6 sm:mb-8">
               使用手机号快速登录或注册
             </p>
 
             {/* 手机号 */}
-            <div className="mb-5">
+            <div className="mb-4 sm:mb-5">
               <label className="text-xs font-medium text-[#B8B6B3] uppercase tracking-wider mb-2 block">手机号</label>
-              <div className="flex items-center gap-3 border-b-2 border-gray-200 dark:border-gray-600 focus-within:border-[#D4A574] transition-colors pb-2">
+              <div className="flex items-center gap-2 sm:gap-3 border-b-2 border-gray-200 dark:border-gray-600 focus-within:border-[#D4A574] transition-colors pb-2">
                 <Phone size={18} className="text-[#B8B6B3] flex-shrink-0" />
                 <span className="text-sm text-[#B8B6B3] flex-shrink-0">+86</span>
                 <input
                   type="tel"
+                  inputMode="numeric"
                   maxLength={11}
                   value={phone}
                   onChange={e => {
@@ -133,19 +151,21 @@ export default function LoginPage() {
                     setError('');
                   }}
                   placeholder="请输入手机号"
-                  className="flex-1 bg-transparent border-none outline-none text-[#1A1A2E] dark:text-[#F5F5F5] placeholder:text-[#B8B6B3]/50 text-base"
+                  className="flex-1 min-w-0 bg-transparent border-none outline-none text-[#1A1A2E] dark:text-[#F5F5F5] placeholder:text-[#B8B6B3]/50 text-base"
+                  autoComplete="tel"
                 />
               </div>
             </div>
 
             {/* 验证码 */}
-            <div className="mb-6">
+            <div className="mb-5 sm:mb-6">
               <label className="text-xs font-medium text-[#B8B6B3] uppercase tracking-wider mb-2 block">验证码</label>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 flex items-center gap-3 border-b-2 border-gray-200 dark:border-gray-600 focus-within:border-[#D4A574] transition-colors pb-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3 border-b-2 border-gray-200 dark:border-gray-600 focus-within:border-[#D4A574] transition-colors pb-2">
                   <ShieldCheck size={18} className="text-[#B8B6B3] flex-shrink-0" />
                   <input
                     type="text"
+                    inputMode="numeric"
                     maxLength={6}
                     value={code}
                     onChange={e => {
@@ -153,13 +173,14 @@ export default function LoginPage() {
                       setError('');
                     }}
                     placeholder="输入验证码"
-                    className="flex-1 bg-transparent border-none outline-none text-[#1A1A2E] dark:text-[#F5F5F5] placeholder:text-[#B8B6B3]/50 text-base"
+                    className="flex-1 min-w-0 bg-transparent border-none outline-none text-[#1A1A2E] dark:text-[#F5F5F5] placeholder:text-[#B8B6B3]/50 text-base"
+                    autoComplete="one-time-code"
                   />
                 </div>
                 <button
                   onClick={handleSendCode}
                   disabled={!isPhoneValid || countdown > 0 || sending}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer
+                  className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap
                     ${!isPhoneValid || countdown > 0 || sending
                       ? 'bg-gray-100 dark:bg-gray-700 text-[#B8B6B3] cursor-not-allowed'
                       : 'bg-[#D4A574]/10 text-[#D4A574] hover:bg-[#D4A574]/20 active:scale-95'
@@ -178,7 +199,7 @@ export default function LoginPage() {
 
             {/* 错误提示 */}
             {error && (
-              <div className="mb-4 text-sm text-[#EF4444] bg-red-50 dark:bg-red-900/20 px-4 py-2.5 rounded-lg animate-[slideUp_0.2s_ease-out]">
+              <div className="mb-4 text-sm text-[#EF4444] bg-red-50 dark:bg-red-900/20 px-3 sm:px-4 py-2.5 rounded-lg animate-[slideUp_0.2s_ease-out]">
                 {error}
               </div>
             )}
@@ -187,7 +208,7 @@ export default function LoginPage() {
             <button
               onClick={handleLogin}
               disabled={!verificationInfo || code.length < 4 || logging || success}
-              className={`w-full py-3.5 rounded-xl font-medium text-base transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
+              className={`w-full py-3 sm:py-3.5 rounded-xl font-medium text-base transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
                 ${success
                   ? 'bg-[#10B981] text-white shadow-lg shadow-green-500/30'
                   : !verificationInfo || code.length < 4 || logging
@@ -204,13 +225,13 @@ export default function LoginPage() {
               )}
             </button>
 
-            <p className="text-center text-xs text-[#B8B6B3] mt-5">
+            <p className="text-center text-xs text-[#B8B6B3] mt-4 sm:mt-5">
               未注册的手机号将自动创建账号
             </p>
           </div>
 
           {/* 返回首页 */}
-          <div className="text-center mt-6">
+          <div className="text-center mt-4 sm:mt-6 pb-4">
             <button
               onClick={() => navigate('/')}
               className="text-sm text-[#B8B6B3] hover:text-[#D4A574] transition-colors cursor-pointer"

@@ -7,6 +7,19 @@
       "timeout": 5,
       "runtime": "Nodejs16.13",
       "handler": "index.main"
+    },
+    {
+      "name": "blog-autoPublish",
+      "timeout": 60,
+      "runtime": "Nodejs16.13",
+      "handler": "index.main",
+      "triggers": [
+        {
+          "name": "daily-publish-trigger",
+          "type": "timer",
+          "config": "0 0 18 * * * *"
+        }
+      ]
     }
   ],
   "app": {

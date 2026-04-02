@@ -5,10 +5,11 @@ interface Props {
   stats: BlogStatistics | null;
 }
 
-function formatNumber(num: number): string {
-  if (num >= 10000) return (num / 10000).toFixed(1) + 'w';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-  return num.toString();
+function formatNumber(num: number | undefined | null): string {
+  const n = num ?? 0;
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  return n.toString();
 }
 
 export function StatsOverview({ stats }: Props) {

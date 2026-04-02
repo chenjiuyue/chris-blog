@@ -15,6 +15,7 @@ import { Loading } from '../components/common/Loading';
 import { getPostById, getRelatedPosts } from '../services/postService';
 import { getCommentsByPostId } from '../services/commentService';
 import { getCloudBaseApp, ensureAuth } from '../config/cloudbase';
+import { getVisitorId } from '../utils/visitorId';
 import type { Post, Comment } from '../types';
 
 function formatDate(dateStr: string): string {
@@ -48,6 +49,7 @@ export function PostDetailPage() {
             page: `/post/${postId}`,
             referrer: document.referrer || '',
             userAgent: navigator.userAgent || '',
+            visitorId: getVisitorId(),
           },
         }),
         app.callFunction({
@@ -108,7 +110,7 @@ export function PostDetailPage() {
       <SEO 
         title={post.title} 
         description={post.summary || post.content.slice(0, 150)} 
-        keywords={post.tags}
+        keywords={post.tags || []}
         type="article"
       />
       {/* Reading Progress Bar */}
@@ -151,7 +153,7 @@ export function PostDetailPage() {
               </div>
 
               <div className="flex flex-wrap gap-2.5">
-                {post.tags.map(tag => (
+                {(post.tags || []).map(tag => (
                   <Link key={tag} to={`/tag/${tag}`}
                     className="text-xs px-3 py-1.5 rounded-full bg-accent/8 text-accent/80 hover:bg-accent/15 transition-colors">
                     #{tag}

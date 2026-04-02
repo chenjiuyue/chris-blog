@@ -14,6 +14,7 @@ import { getAllCategories } from '../services/categoryService';
 import { getAllTags } from '../services/tagService';
 import { getBlogStatistics } from '../services/statisticsService';
 import { getCloudBaseApp, ensureAuth } from '../config/cloudbase';
+import { getVisitorId } from '../utils/visitorId';
 import type { Post, Category, Tag, BlogStatistics } from '../types';
 
 export function HomePage() {
@@ -42,7 +43,7 @@ export function HomePage() {
       const app = getCloudBaseApp();
       app.callFunction({
         name: 'blog-recordVisit',
-        data: { page: '/', referrer: document.referrer || '', userAgent: navigator.userAgent || '' },
+        data: { page: '/', referrer: document.referrer || '', userAgent: navigator.userAgent || '', visitorId: getVisitorId() },
       }).catch(() => {});
     });
   }, [fetchPosts]);

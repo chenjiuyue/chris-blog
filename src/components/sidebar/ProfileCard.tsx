@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export function ProfileCard() {
   return (
     <div className="p-6 rounded-xl bg-white dark:bg-[#2D2D3A]/40 border border-[var(--color-border)] text-center">
@@ -39,12 +41,12 @@ export function ProfileCard() {
           Email
         </a>
         <span>·</span>
-        <a
-          href="/about"
+        <Link
+          to="/about"
           className="hover:text-accent transition-colors"
         >
           关于
-        </a>
+        </Link>
       </div>
     </div>
   );

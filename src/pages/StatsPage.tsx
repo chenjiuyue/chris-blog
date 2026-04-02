@@ -10,10 +10,11 @@ const StatsCharts = lazy(() => import('../components/stats/StatsCharts'));
 
 const COLORS = ['#6366F1', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
-function formatNumber(num: number): string {
-  if (num >= 10000) return (num / 10000).toFixed(1) + 'w';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-  return num.toString();
+function formatNumber(num: number | undefined | null): string {
+  const n = num ?? 0;
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
+  return n.toString();
 }
 
 export function StatsPage() {
