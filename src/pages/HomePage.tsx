@@ -2,14 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SEO } from '../components/common/SEO';
 import { PostList } from '../components/post/PostList';
-import { CategoryNav } from '../components/sidebar/CategoryNav';
-import { TagCloud } from '../components/sidebar/TagCloud';
 import { HotPosts } from '../components/sidebar/HotPosts';
 import { FriendLinks } from '../components/sidebar/FriendLinks';
 import { EnhancedSearchBar } from '../components/sidebar/EnhancedSearchBar';
-import { StatsOverview } from '../components/common/StatsOverview';
-import { ProfileCard } from '../components/sidebar/ProfileCard';
+import { AboutCard } from '../components/common/AboutCard';
+import { CategoryTagNav } from '../components/sidebar/CategoryTagNav';
 import { getPublishedPosts, searchPosts } from '../services/postService';
+import type { PostSortField } from '../services/postService';
 import { getAllCategories } from '../services/categoryService';
 import { getAllTags } from '../services/tagService';
 import { getBlogStatistics } from '../services/statisticsService';
@@ -25,16 +24,17 @@ export function HomePage() {
   const [stats, setStats] = useState<BlogStatistics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchMode, setSearchMode] = useState(false);
+  const [sortField, setSortField] = useState<PostSortField>('createdAt');
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (sort: PostSortField = 'createdAt') => {
     setLoading(true);
-    const data = await getPublishedPosts(20);
+    const data = await getPublishedPosts(20, 0, sort);
     setPosts(data);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(sortField);
     getAllCategories().then(setCategories);
     getAllTags().then(setTags);
     getBlogStatistics().then(setStats);
@@ -46,7 +46,7 @@ export function HomePage() {
         data: { page: '/', referrer: document.referrer || '', userAgent: navigator.userAgent || '', visitorId: getVisitorId() },
       }).catch(() => {});
     });
-  }, [fetchPosts]);
+  }, [fetchPosts, sortField]);
 
   useEffect(() => {
     if (searchParams.get('search') === 'true') {
@@ -62,6 +62,11 @@ export function HomePage() {
     setLoading(false);
   }, []);
 
+  const handleSortChange = useCallback((field: PostSortField) => {
+    setSortField(field);
+    setSearchMode(false);
+  }, []);
+
   return (
     <>
       <SEO />
@@ -73,43 +78,43 @@ export function HomePage() {
             <button
               onClick={() => {
                 setSearchMode(false);
-                fetchPosts();
+                fetchPosts(sortField);
               }}
               className="text-sm text-accent mb-6 hover:underline cursor-pointer"
             >
               &larr; 返回全部文章
             </button>
           )}
-          <PostList posts={posts} loading={loading} />
+          <PostList
+            posts={posts}
+            loading={loading}
+            sortField={sortField}
+            onSortChange={handleSortChange}
+            showSort={!searchMode}
+          />
         </div>
 
         {/* Sidebar */}
-        <aside className="lg:col-span-4 space-y-6">
-          <ProfileCard />
-          <StatsOverview stats={stats} />
+        <aside className="lg:col-span-4 space-y-5">
+          <AboutCard stats={stats} />
 
-          {/* Search & Categories */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#2D2D3A]/40 border border-[var(--color-border)]">
-            <div className="mb-5">
-              <EnhancedSearchBar 
-                onSearch={(kw) => {
-                  setSearchMode(true);
-                  handleSearch(kw);
-                }}
-                categories={categories}
-                tags={tags}
-              />
-            </div>
-            <CategoryNav categories={categories} />
+          {/* Search */}
+          <div className="p-4 rounded-xl bg-white dark:bg-[#2D2D3A]/40 border border-[var(--color-border)]">
+            <EnhancedSearchBar
+              onSearch={(kw) => {
+                setSearchMode(true);
+                handleSearch(kw);
+              }}
+              categories={categories}
+              tags={tags}
+            />
           </div>
 
           {/* Hot Posts */}
           <HotPosts />
 
-          {/* Tags */}
-          <div className="p-5 rounded-xl bg-white dark:bg-[#2D2D3A]/40 border border-[var(--color-border)]">
-            <TagCloud tags={tags} />
-          </div>
+          {/* Categories & Tags */}
+          <CategoryTagNav categories={categories} tags={tags} />
 
           {/* Friend Links */}
           <FriendLinks />

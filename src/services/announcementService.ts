@@ -36,7 +36,8 @@ export async function getActiveAnnouncement(): Promise<Announcement | null> {
       .get();
 
     // 在前端过滤时间范围
-    const active = (result.data || []).find((item: any) => {
+    const data = Array.isArray(result?.data) ? result.data : [];
+    const active = data.find((item: any) => {
       const startTime = new Date(item.startTime);
       const endTime = new Date(item.endTime);
       return now >= startTime && now <= endTime;
@@ -63,7 +64,7 @@ export async function getAllAnnouncements(): Promise<Announcement[]> {
       .orderBy('createdAt', 'desc')
       .get();
 
-    return result.data as Announcement[];
+    return Array.isArray(result?.data) ? (result.data as Announcement[]) : [];
   } catch (error) {
     console.error('获取公告列表失败:', error);
     return [];

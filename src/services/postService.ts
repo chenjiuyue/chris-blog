@@ -3,12 +3,15 @@ import type { Post } from '../types';
 
 const COLLECTION = 'blog_posts';
 
-export async function getPublishedPosts(limit = 10, skip = 0): Promise<Post[]> {
+export type PostSortField = 'createdAt' | 'viewCount' | 'commentCount' | 'likeCount';
+
+export async function getPublishedPosts(limit = 10, skip = 0, sortField: PostSortField = 'createdAt'): Promise<Post[]> {
   await ensureAuth();
   const db = getDB();
+  const order = sortField === 'createdAt' ? 'desc' : 'desc';
   const result = await db.collection(COLLECTION)
     .where({ status: 'published' })
-    .orderBy('createdAt', 'desc')
+    .orderBy(sortField, order)
     .skip(skip)
     .limit(limit)
     .get();

@@ -1,0 +1,7 @@
+{
+  "name": "blog-fixCommentAvatars",
+  "runtime": "Nodejs16.13",
+  "timeout": 60,
+  "memorySize": 256,
+  "handler": "index.main"
+}

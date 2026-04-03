@@ -117,7 +117,15 @@ exports.main = async (event, context) => {
     const realTotalPosts = allPosts.length;
     const realTotalViews = allPosts.reduce((sum, p) => sum + (p.viewCount || 0), 0);
     const realTotalLikes = allPosts.reduce((sum, p) => sum + (p.likeCount || 0), 0);
-    const realTotalComments = allPosts.reduce((sum, p) => sum + (p.commentCount || 0), 0);
+
+    // 评论数从 blog_comments 集合实际统计
+    let realTotalComments = 0;
+    try {
+      const commentsCountResult = await db.collection('blog_comments').count();
+      realTotalComments = commentsCountResult.total || 0;
+    } catch (countErr) {
+      realTotalComments = allPosts.reduce((sum, p) => sum + (p.commentCount || 0), 0);
+    }
 
     // 取 blog_statistics 和实际数据中的较大值（避免统计倒退）
     baseStats.totalPosts = Math.max(baseStats.totalPosts || 0, realTotalPosts);

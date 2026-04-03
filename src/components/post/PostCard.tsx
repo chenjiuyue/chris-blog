@@ -7,8 +7,18 @@ interface Props {
 }
 
 function estimateReadTime(content: string): string {
-  const words = content.length;
-  const minutes = Math.ceil(words / 400);
+  // 移除 Markdown 语法标记，只保留纯文本用于计算
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, '')       // 移除代码块
+    .replace(/`[^`]+`/g, '')              // 移除行内代码
+    .replace(/!\[.*?\]\(.*?\)/g, '')      // 移除图片
+    .replace(/\[([^\]]*)\]\(.*?\)/g, '$1') // 链接只保留文字
+    .replace(/#{1,6}\s*/g, '')            // 移除标题标记
+    .replace(/[*_~>|-]+/g, '')            // 移除加粗/斜体/删除线/引用/分隔线
+    .replace(/\n+/g, '')                  // 移除换行
+    .trim();
+  // 中文阅读速度约 300 字/分钟，最少显示 1 分钟
+  const minutes = Math.max(1, Math.ceil(plainText.length / 300));
   return `${minutes} 分钟`;
 }
 
@@ -35,7 +45,7 @@ export function PostCard({ post }: Props) {
           <span className="text-xs text-text-muted">&middot;</span>
           <span className="text-xs text-text-muted flex items-center gap-1">
             <Calendar size={12} />
-            {formatDate(post.createdAt)}
+            {formatDate(post.publishedAt || post.createdAt)}
           </span>
           <span className="text-xs text-text-muted flex items-center gap-1">
             <Clock size={12} />

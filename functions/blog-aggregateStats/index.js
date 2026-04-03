@@ -118,7 +118,7 @@ exports.main = async (event, context) => {
     try {
       const allPosts = await db.collection('blog_posts')
         .where({ status: 'published' })
-        .field({ viewCount: true, likeCount: true, commentCount: true })
+        .field({ viewCount: true, likeCount: true })
         .limit(500)
         .get();
 
@@ -126,7 +126,21 @@ exports.main = async (event, context) => {
       const totalPosts = posts.length;
       const totalViews = posts.reduce((s, p) => s + (p.viewCount || 0), 0);
       const totalLikes = posts.reduce((s, p) => s + (p.likeCount || 0), 0);
-      const totalComments = posts.reduce((s, p) => s + (p.commentCount || 0), 0);
+
+      // 评论数从 blog_comments 集合实际统计
+      let totalComments = 0;
+      try {
+        const commentsCountResult = await db.collection('blog_comments').count();
+        totalComments = commentsCountResult.total || 0;
+      } catch (countErr) {
+        // 回退到文章 commentCount 汇总
+        const commentPosts = await db.collection('blog_posts')
+          .where({ status: 'published' })
+          .field({ commentCount: true })
+          .limit(500)
+          .get();
+        totalComments = (commentPosts.data || []).reduce((s, p) => s + (p.commentCount || 0), 0);
+      }
 
       const statsDoc = {
         totalPosts,

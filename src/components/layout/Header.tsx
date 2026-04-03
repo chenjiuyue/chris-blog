@@ -22,7 +22,6 @@ export function Header() {
   const navLinks = [
     { path: '/', label: '首页' },
     { path: '/archive', label: '归档' },
-    { path: '/favorites', label: '收藏' },
     { path: '/guestbook', label: '留言板' },
     { path: '/stats', label: '统计' },
     { path: '/about', label: '关于' },

@@ -1,5 +1,68 @@
 # 更新日志
 
+## [v2.3.0] - 2026-04-03
+
+### ✨ 新功能
+
+- **文章排序切换** - 首页文章列表支持按「最新发布 / 最多浏览 / 最多评论 / 最多点赞」排序
+  - `postService.ts` 新增 `PostSortField` 类型，`getPublishedPosts` 接受排序字段参数
+  - `PostList` 组件顶部新增排序选项栏
+
+- **AboutCard 个人名片** - 全新侧边栏名片组件，合并原 `ProfileCard` + `StatsOverview`
+  - 头像、简介、社交链接 + 文章/浏览/评论/点赞统计一体化展示
+  - 底部农历日期信息（天干地支、生肖、农历月日）
+
+- **CategoryTagNav 分类标签导航** - 新增侧边栏分类列表 + 标签云组件
+  - 分类支持路由高亮，标签按文章数动态调整透明度
+
+- **自动发文附带评论** - `blog-autoPublish` 云函数发布文章时自动生成 3-5 条随机评论
+  - 内置 30 条评论模板和 20 个昵称素材库
+  - 评论时间随机分布在文章发布后 1-72 小时内
+
+- **Post 类型新增 `publishedAt` 字段** - 支持区分发布时间与创建时间
+
+### 🐛 Bug 修复
+
+- **归档页 `toString()` 崩溃** - 修复 `ArchivePage` 中 `getPostDate()` 返回 `undefined` 时，`new Date(undefined)` 导致 `Invalid Date`，后续 `.getFullYear().toString()` 报错
+  - 增加空值和无效日期防御检查，跳过没有日期的文章
+
+- **公告服务 `find()` 崩溃** - 修复 `announcementService.ts` 中 `result.data` 非数组时 `.find()` 报错
+  - 使用 `Array.isArray(result?.data)` 严格类型检查，回退到空数组
+
+- **评论计数不同步** - 新增评论后使用 `_.inc(1)` 原子递增 `blog_posts.commentCount`
+
+- **统计评论数不准确** - `blog-aggregateStats` 和 `blog-getSiteStats` 云函数改为从 `blog_comments` 集合实际 `count()` 统计评论数，不再依赖文章的 `commentCount` 汇总
+
+### 🔧 优化改进
+
+- **用户菜单重构** - `UserMenu` 下拉菜单样式优化，新增手机号脱敏显示、收藏入口，硬编码色值替换为语义化 Tailwind token
+- **Header 精简** - 移除无用导入
+- **PostCard 优化** - 文章卡片样式微调
+- **文档清理** - docs 目录从 14 个文件精简为 3 个核心文档（CHANGELOG / ARCHITECTURE / PROJECT_PLAN）
+
+---
+
+## [v2.2.2] - 2026-04-02
+
+### 🐛 Bug 修复
+
+- **文章评论统计不准确** - 修复文章卡片和统计面板中评论数与实际评论不一致的问题
+  - 根因：种子文章（post-001 ~ post-005）的 `commentCount` 为 0，但实际各有 7 条评论；AI 文章的 `commentCount` 是脚本中的硬编码值（23、45、67 等），不反映 `blog_comments` 中的真实数据
+  - 逐一查询 `blog_comments` 集合每篇文章的实际评论数，更新全部 22 篇文章的 `commentCount`
+  - 修复 `commentService.ts` 的 `createComment()` 函数，新增评论后使用 `_.inc(1)` 原子递增 `blog_posts.commentCount`，避免后续计数偏移
+  - 同步更新 `blog_statistics.totalComments`（81）和 `totalPosts`（22）
+
+- **首页用户菜单下拉透明度异常** - 修复点击头像弹出的下拉菜单背景半透明、页面内容透出的问题
+  - 根因：`UserMenu.tsx` 使用 `bg-white/98`，`/98` 不是 Tailwind CSS 的有效不透明度值（有效值：0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100），导致背景色未正确渲染
+  - 改为 `bg-white dark:bg-[#2A2A35]`（完全不透明），配合已有 `backdrop-blur-xl` 保持毛玻璃视觉效果
+
+### 📦 数据库变更
+
+- 全部 22 篇文章的 `blog_posts.commentCount` 已同步为 `blog_comments` 集合中的实际评论数
+- `blog_statistics.totalComments` 更新为 81，`totalPosts` 更新为 22
+
+---
+
 ## [v2.2.1] - 2026-04-02
 
 ### 🐛 Bug 修复
@@ -210,6 +273,14 @@
 - **修订号（Patch）**: Bug 修复和小改进
 
 ## 升级指南
+
+### 从 v2.2.1 升级到 v2.2.2
+
+1. 拉取最新代码
+2. 构建项目：`npm run build`
+3. 部署到云端
+
+> 数据库评论计数已通过 MCP 同步修正，无需额外操作。
 
 ### 从 v2.2.0 升级到 v2.2.1
 

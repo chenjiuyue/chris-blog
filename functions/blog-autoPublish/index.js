@@ -1268,6 +1268,47 @@ function shuffleArray(arr) {
   return shuffled;
 }
 
+// ─── 评论素材库 ───
+const COMMENT_TEMPLATES = [
+  '写得很详细，学到了很多！',
+  '正好遇到这个问题，感谢分享',
+  '思路清晰，代码示例也很实用',
+  '收藏了，后续慢慢研究',
+  '请问这个方案在生产环境表现如何？',
+  '期待后续系列文章',
+  '这个技术方向确实很有前景',
+  '看了好几遍才理解，收获很大',
+  '能不能出一篇更深入的实践教程？',
+  '对比分析很到位，已分享给同事',
+  '终于找到一篇讲清楚的文章了',
+  '作者的写作风格很喜欢，关注了',
+  '实操性很强，准备在项目里试试',
+  '请问有推荐的学习资料吗？',
+  '这篇博客质量很高，支持！',
+  '跟着文章实践了一下，效果不错',
+  '干货满满，已做笔记',
+  '图文并茂，排版也很舒服',
+  '希望以后多出这类技术深度文章',
+  '终于搞懂了这个概念，感谢作者',
+  '这篇文章帮我节省了大量踩坑时间',
+  '思路很棒，学到了新的解决方案',
+  '一直在关注这个领域，文章分析得很到位',
+  '建议可以补充一下性能对比数据',
+  '这篇文章让我对技术选型有了新的认识',
+  '感觉作者实战经验很丰富',
+  '写得很用心，细节处理得很好',
+  '技术点讲得很透彻，佩服',
+  '通俗易懂，非常适合入门学习',
+  '作为一个初学者，这篇文章对我帮助很大',
+];
+
+const COMMENT_NICKNAMES = [
+  '林小北', '陈墨白', '赵一鸣', '王思远', '张雨晴',
+  '刘浩然', '周子涵', '吴晓峰', '孙佳怡', '杨晨光',
+  '黄子轩', '李思涵', '郑浩宇', '马晓东', '徐明辉',
+  '何雨桐', '罗志豪', '唐嘉伟', '韩雪婷', '曹文博',
+];
+
 // ─── 主逻辑 ───
 exports.main = async (event, context) => {
   const publishCount = event.count || 5;
@@ -1299,6 +1340,7 @@ exports.main = async (event, context) => {
 
     const now = new Date();
     const results = [];
+    let totalNewComments = 0;
 
     for (let i = 0; i < toPublish.length; i++) {
       const article = toPublish[i];
@@ -1306,6 +1348,9 @@ exports.main = async (event, context) => {
       // 创建时间：当天不同时刻，模拟自然发布节奏
       const publishTime = new Date(now);
       publishTime.setHours(9 + i * 2, randomInt(0, 59), randomInt(0, 59));
+
+      // 随机评论数：3-5 条
+      const commentNum = randomInt(3, 5);
 
       const post = {
         title: article.title,
@@ -1318,7 +1363,7 @@ exports.main = async (event, context) => {
         status: 'published',
         viewCount: randomInt(50, 500),
         likeCount: randomInt(5, 80),
-        commentCount: 0,
+        commentCount: commentNum,
         createdAt: publishTime.toISOString(),
         updatedAt: publishTime.toISOString(),
       };
@@ -1326,12 +1371,45 @@ exports.main = async (event, context) => {
       const addResult = await db.collection('blog_posts').add(post);
 
       if (addResult.id) {
+        const postId = addResult.id;
         results.push({
-          _id: addResult.id,
+          _id: postId,
           title: article.title,
           category: article.category,
+          commentCount: commentNum,
         });
         console.log(`[blog-autoPublish] ✅ 发布: ${article.title}`);
+
+        // 为新文章随机生成评论
+        const usedCommentIdx = new Set();
+        const usedNickIdx = new Set();
+        for (let c = 0; c < commentNum; c++) {
+          let commentIdx;
+          do { commentIdx = randomInt(0, COMMENT_TEMPLATES.length - 1); } while (usedCommentIdx.has(commentIdx));
+          usedCommentIdx.add(commentIdx);
+
+          let nickIdx;
+          do { nickIdx = randomInt(0, COMMENT_NICKNAMES.length - 1); } while (usedNickIdx.has(nickIdx));
+          usedNickIdx.add(nickIdx);
+
+          // 评论时间：发布后几小时内
+          const commentTime = new Date(publishTime);
+          commentTime.setHours(commentTime.getHours() + randomInt(1, 8), randomInt(0, 59));
+
+          try {
+            await db.collection('blog_comments').add({
+              postId,
+              nickname: COMMENT_NICKNAMES[nickIdx],
+              content: COMMENT_TEMPLATES[commentIdx],
+              parentId: '',
+              createdAt: commentTime.toISOString(),
+            });
+            totalNewComments++;
+          } catch (commentErr) {
+            console.warn(`[blog-autoPublish] 评论创建失败: ${commentErr.message}`);
+          }
+        }
+        console.log(`[blog-autoPublish] 💬 为「${article.title}」添加了 ${commentNum} 条评论`);
       }
     }
 
@@ -1418,14 +1496,28 @@ exports.main = async (event, context) => {
       const totalPosts = allPosts.data ? allPosts.data.length : 0;
       const fullPosts = await db.collection('blog_posts')
         .where({ status: 'published' })
-        .field({ viewCount: true, likeCount: true, commentCount: true })
+        .field({ viewCount: true, likeCount: true })
         .limit(500)
         .get();
 
       const posts = fullPosts.data || [];
       const totalViews = posts.reduce((s, p) => s + (p.viewCount || 0), 0);
       const totalLikes = posts.reduce((s, p) => s + (p.likeCount || 0), 0);
-      const totalComments = posts.reduce((s, p) => s + (p.commentCount || 0), 0);
+
+      // 评论数从 blog_comments 集合实际统计
+      let totalComments = 0;
+      try {
+        const commentsCountResult = await db.collection('blog_comments').count();
+        totalComments = commentsCountResult.total || 0;
+      } catch (countErr) {
+        // 回退到文章 commentCount 汇总
+        const commentPosts = await db.collection('blog_posts')
+          .where({ status: 'published' })
+          .field({ commentCount: true })
+          .limit(500)
+          .get();
+        totalComments = (commentPosts.data || []).reduce((s, p) => s + (p.commentCount || 0), 0);
+      }
 
       // 先尝试 update，失败则用 add 创建文档
       const statsData = {
@@ -1446,16 +1538,17 @@ exports.main = async (event, context) => {
         console.log('[blog-autoPublish] blog_statistics 文档不存在，已创建');
       }
 
-      console.log(`[blog-autoPublish] 统计已更新: ${totalPosts} 篇, ${totalViews} 浏览`);
+      console.log(`[blog-autoPublish] 统计已更新: ${totalPosts} 篇, ${totalViews} 浏览, ${totalComments} 评论`);
     } catch (e) {
       console.error('[blog-autoPublish] 更新统计失败:', e.message);
     }
 
     return {
       success: true,
-      message: `成功发布 ${results.length} 篇文章`,
+      message: `成功发布 ${results.length} 篇文章，新增 ${totalNewComments} 条评论`,
       data: {
         published: results.length,
+        comments: totalNewComments,
         articles: results,
       },
     };

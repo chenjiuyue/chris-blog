@@ -28,6 +28,7 @@ export async function createComment(postId: string, nickname: string, content: s
   }
 
   const db = getDB();
+  const _ = db.command;
   const now = new Date().toISOString();
   const result = await db.collection(COLLECTION).add({
     postId,
@@ -41,6 +42,15 @@ export async function createComment(postId: string, nickname: string, content: s
   if (typeof result.code === 'string') {
     console.error('创建评论失败:', result.code);
     return null;
+  }
+
+  // 同步递增 blog_posts 的 commentCount
+  try {
+    await db.collection('blog_posts').doc(postId).update({
+      commentCount: _.inc(1),
+    });
+  } catch (err) {
+    console.warn('更新文章评论计数失败（不影响评论发布）:', err);
   }
 
   return {

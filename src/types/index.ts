@@ -13,6 +13,7 @@ export interface Post {
   commentCount: number;
   seriesId?: string;
   seriesOrder?: number;
+  publishedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

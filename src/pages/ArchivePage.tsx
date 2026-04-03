@@ -18,11 +18,19 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' });
 }
 
+// 获取文章的展示日期：优先使用 publishedAt，回退到 createdAt
+function getPostDate(post: Post): string {
+  return post.publishedAt || post.createdAt;
+}
+
 function groupPostsByDate(posts: Post[]): ArchiveGroup[] {
   const groups: Map<string, Map<string, Post[]>> = new Map();
 
   posts.forEach(post => {
-    const date = new Date(post.createdAt);
+    const dateStr = getPostDate(post);
+    if (!dateStr) return; // 跳过没有日期的文章
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return; // 跳过无效日期
     const year = date.getFullYear().toString();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
 
@@ -51,7 +59,7 @@ function groupPostsByDate(posts: Post[]): ArchiveGroup[] {
       months: sortedMonths.map(month => ({
         month,
         posts: monthsMap.get(month)!.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(getPostDate(b)).getTime() - new Date(getPostDate(a)).getTime()
         ),
       })),
     });
@@ -127,7 +135,7 @@ export function ArchivePage() {
                             {post.title}
                           </h4>
                           <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
-                            <span>{formatDate(post.createdAt)}</span>
+                            <span>{formatDate(getPostDate(post))}</span>
                             <span>·</span>
                             <span>{post.category}</span>
                             <span>·</span>

@@ -23,7 +23,19 @@ function formatDate(dateStr: string): string {
 }
 
 function estimateReadTime(content: string): string {
-  return `${Math.ceil(content.length / 400)} 分钟阅读`;
+  // 移除 Markdown 语法标记，只保留纯文本用于计算
+  const plainText = content
+    .replace(/```[\s\S]*?```/g, '')       // 移除代码块
+    .replace(/`[^`]+`/g, '')              // 移除行内代码
+    .replace(/!\[.*?\]\(.*?\)/g, '')      // 移除图片
+    .replace(/\[([^\]]*)\]\(.*?\)/g, '$1') // 链接只保留文字
+    .replace(/#{1,6}\s*/g, '')            // 移除标题标记
+    .replace(/[*_~>|-]+/g, '')            // 移除加粗/斜体/删除线/引用/分隔线
+    .replace(/\n+/g, '')                  // 移除换行
+    .trim();
+  // 中文阅读速度约 300 字/分钟，最少显示 1 分钟
+  const minutes = Math.max(1, Math.ceil(plainText.length / 300));
+  return `${minutes} 分钟阅读`;
 }
 
 export function PostDetailPage() {
@@ -215,7 +227,7 @@ export function PostDetailPage() {
                 <h4 className="font-serif text-sm text-primary dark:text-text-light leading-snug mb-2 group-hover:text-accent transition-colors line-clamp-2">
                   {rp.title}
                 </h4>
-                <p className="text-xs text-text-muted">{formatDate(rp.createdAt)}</p>
+                <p className="text-xs text-text-muted">{formatDate(rp.publishedAt || rp.createdAt)}</p>
               </Link>
             ))}
           </div>
